@@ -59,7 +59,7 @@ func (im *IdxMap[K, V]) GetKeyIdx(key K) int {
 	return im.m[key]
 }
 
-func (im *IdxMap[K, V]) KeyExists(key K) bool {
+func (im *IdxMap[K, V]) HasKey(key K) bool {
 	_, ok := im.m[key]
 	return ok
 }
