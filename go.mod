@@ -1,3 +1,3 @@
-module github.com/Yanis-F/go_indexed_map
+module github.com/yanis-fourel/go-indexed-map
 
 go 1.19
