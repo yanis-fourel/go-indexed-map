@@ -65,7 +65,7 @@ func (im *IdxMap[K, V]) RemoveKey(key K) {
 }
 
 // Will be invalidated by any modification to the IdxMap
-func (im *IdxMap[K, V]) Iterate() []Item[K, V] {
+func (im *IdxMap[K, V]) Iter() []Item[K, V] {
 	return im.s
 }
 
