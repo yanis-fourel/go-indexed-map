@@ -1,32 +1,32 @@
 package idxmap
 
-type item[K, V any] struct {
+type Item[K, V any] struct {
 	key K
 	val V
 }
 
 type IdxMap[K comparable, V any] struct {
-	s []item[K, V]
+	s []Item[K, V]
 	m map[K]int
 }
 
 func New[K comparable, V any]() *IdxMap[K, V] {
 	return &IdxMap[K, V]{
-		s: make([]item[K, V], 0),
+		s: make([]Item[K, V], 0),
 		m: make(map[K]int),
 	}
 }
 
 func (im *IdxMap[K, V]) Append(val V) {
 	var k K
-	im.s = append(im.s, item[K, V]{
+	im.s = append(im.s, Item[K, V]{
 		key: k,
 		val: val,
 	})
 }
 
 func (im *IdxMap[K, V]) InsertKey(key K, val V) {
-	im.s = append(im.s, item[K, V]{key, val})
+	im.s = append(im.s, Item[K, V]{key, val})
 	im.m[key] = len(im.s) - 1
 }
 
@@ -64,7 +64,7 @@ func (im *IdxMap[K, V]) RemoveKey(key K) {
 	im.RemoveIdx(idx)
 }
 
-func (im *IdxMap[K, V]) Iterate() []item[K, V] {
+func (im *IdxMap[K, V]) Iterate() []Item[K, V] {
 	return im.s
 }
 
