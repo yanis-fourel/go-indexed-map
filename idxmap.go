@@ -44,6 +44,7 @@ func (im *IdxMap[K, V]) Append(val V) {
 // Append new item at index.
 // If key already exists, it will be overwritten instead, and `idx` will be
 // ignored.
+// Panic if idx is out of range.
 func (im *IdxMap[K, V]) InsertIndex(idx int, key K, val V) {
 	if _, ok := im.m[key]; ok {
 		im.s[im.m[key]].Val = val
@@ -78,7 +79,8 @@ func (im *IdxMap[K, V]) Set(key K, val V) {
 	im.m[key] = len(im.s) - 1
 }
 
-// Set item value by index
+// Set item value by index.
+// Panic if idx is out of range.
 func (im *IdxMap[K, V]) SetIdx(idx int, val V) {
 	im.s[idx].Val = val
 }
@@ -94,8 +96,8 @@ func (im *IdxMap[K, V]) SetIdxKey(idx int, key K) {
 	}
 }
 
-// Get item value by key
-// if key not found, return empty
+// Get item value by key.
+// if key not found, return empty.
 func (im *IdxMap[K, V]) Get(key K) (val V) {
 	idx, ok := im.m[key]
 	if !ok {
@@ -104,8 +106,8 @@ func (im *IdxMap[K, V]) Get(key K) (val V) {
 	return im.s[idx].Val
 }
 
-// Get item index by key
-// if key not found, return empty
+// Get item index by key.
+// if key not found, return empty.
 func (im *IdxMap[K, V]) GetKeyIdx(key K) int {
 	return im.m[key]
 }
@@ -115,18 +117,18 @@ func (im *IdxMap[K, V]) HasKey(key K) bool {
 	return ok
 }
 
-// Get item value by index
+// Get item value by index.
 func (im *IdxMap[K, V]) At(idx int) V {
 	return im.s[idx].Val
 }
 
-// Get item key by index
+// Get item key by index.
 func (im *IdxMap[K, V]) GetIdxKey(idx int) K {
 	return im.s[idx].Key
 }
 
 // Remove item by index.
-// This operation is O(n)
+// This operation is O(n) but the order is preserved.
 func (im *IdxMap[K, V]) RemoveAt(idx int) {
 	delete(im.m, im.s[idx].Key)
 	im.s = append(im.s[:idx], im.s[idx+1:]...)
@@ -138,7 +140,7 @@ func (im *IdxMap[K, V]) RemoveAt(idx int) {
 }
 
 // Remove item by key.
-// This operation is O(n)
+// This operation is O(n) but the order is preserved.
 func (im *IdxMap[K, V]) Remove(key K) {
 	idx, ok := im.m[key]
 	if !ok {
@@ -169,13 +171,13 @@ func (im *IdxMap[K, V]) Slice() []Item[K, V] {
 }
 
 // The number of items in the IdxMap, including empty keys.
-// This operation is O(1)
+// This operation is O(1).
 func (im *IdxMap[K, V]) Len() int {
 	return len(im.s)
 }
 
 // The number of items in the IdxMap with non-empty keys.
-// This operation is O(1)
+// This operation is O(1).
 func (im *IdxMap[K, V]) LenKeyed() int {
 	return len(im.m)
 }

@@ -155,4 +155,14 @@ func TestEverything(t *testing.T) {
 	assertIs(t, im, 3, "phi", 1.61803398874989484820458683436563811772030917980576)
 	assertIs(t, im, 4, "plank", 6.62607015e-34)
 	assertIs(t, im, 5, "zero", 0)
+
+	im.InsertIndex(1, "plank", 6.6260)
+	im.Remove("superman")
+
+	assertIs(t, im, 0, "", 1)
+	assertIs(t, im, 1, "", 999)
+	assertIs(t, im, 2, "", 2024)
+	assertIs(t, im, 3, "phi", 1.61803398874989484820458683436563811772030917980576)
+	assertIs(t, im, 4, "plank", 6.6260)
+	assertIs(t, im, 5, "zero", 0)
 }
