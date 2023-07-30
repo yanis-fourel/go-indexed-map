@@ -2,142 +2,157 @@ package idxmap
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 )
 
+func assertIs(t *testing.T, im *IdxMap[string, float64], idx int, key string, val float64) {
+	_val := im.At(idx)
+	_key := im.GetIdxKey(idx)
+
+	if _val != val {
+		t.Errorf("GetIdx at idx %d, expected value %f, got %f\n%v", idx, val, _val, *im)
+	}
+	if _key != key {
+		t.Errorf("GetIdxKey at idx %d, expected key '%s', got %s\n%v", idx, key, _key, *im)
+	}
+
+	haskey := im.HasKey(key)
+	if haskey != (key != "") {
+		t.Errorf("HasKey at key '%s', expected %t, got %t\n%v", key, haskey, !haskey, *im)
+	}
+
+	if haskey {
+		_val = im.Get(key)
+		_idx := im.GetKeyIdx(key)
+
+		if _val != val {
+			t.Errorf("GetKey at key '%s', expected value %f, got %f\n%v", key, val, _val, *im)
+		}
+		if _idx != idx {
+			t.Errorf("GetKeyIdx at key '%s', expected idx %d, got %d\n%v", key, idx, _idx, *im)
+		}
+	} else {
+		_val = im.Get(key)
+		_idx := im.GetKeyIdx(key)
+
+		if _val != 0 {
+			t.Errorf("GetKey at key '%s', expected value %f, got %f\n%v", key, val, _val, *im)
+		}
+		if _idx != 0 {
+			t.Errorf("GetKeyIdx at key '%s', expected idx %d, got %d\n%v", key, idx, _idx, *im)
+		}
+	}
+}
+
 func TestEverything(t *testing.T) {
-	im := New[int, int]()
+	im := New[string, float64]()
 
-	im.Append(1)
-	im.Append(2)
-	im.Append(3)
-	im.InsertKey(42, 4)
-	im.Append(5)
+	im.Append(42)
+	im.Set("pi", 3.14)
+	im.Set("e", 2.71828)
+	im.Set("phi", 1.61803)
+	im.Append(69)
+	im.Append(0)
+	im.Set("sqrt(2)", 1.41421)
+
+	im.InsertIndex(3, "tau", 6.28318)
+	im.InsertIndex(7, "", 2023)
+	im.InsertIndex(9, "plank", 6.62607015e-34)
+
+	assertIs(t, im, 0, "", 42)
+	assertIs(t, im, 1, "pi", 3.14)
+	assertIs(t, im, 2, "e", 2.71828)
+	assertIs(t, im, 3, "tau", 6.28318)
+	assertIs(t, im, 4, "phi", 1.61803)
+	assertIs(t, im, 5, "", 69)
+	assertIs(t, im, 6, "", 0)
+	assertIs(t, im, 7, "", 2023)
+	assertIs(t, im, 8, "sqrt(2)", 1.41421)
+	assertIs(t, im, 9, "plank", 6.62607015e-34)
+	if im.Len() != 10 {
+		t.Errorf("Len, expected 10, got %d\n%v", im.Len(), *im)
+	}
+	if im.LenKeyed() != 6 {
+		t.Errorf("LenKeyed, expected 6, got %d\n%v", im.LenKeyed(), *im)
+	}
 	fmt.Println(im)
 
-	if im.Len() != 5 {
-		t.Errorf("Expected len 5, got %d", im.Len())
-	}
+	im.RemoveAt(0)
+	im.RemoveAt(4)
+	im.RemoveAt(7)
+	im.Remove("pi")
+	im.Remove("tau")
+	im.Remove("sqrt(2)")
 
-	if im.GetIdx(0) != 1 {
-		t.Errorf("Index 0 should be 1, got %d", im.GetIdx(0))
-	}
-	if im.GetIdx(3) != 4 {
-		t.Errorf("Index 3 should be 4, got %d", im.GetIdx(3))
-	}
-	if im.GetKey(42) != 4 {
-		t.Errorf("Key 42 should be 4, got %d", im.GetKey(42))
-	}
-	if im.GetKey(0) != 0 {
-		t.Errorf("Key 0 should be 0, got %d", im.GetKey(0))
-	}
-
-	im.RemoveIdx(2)
-	fmt.Println(im)
+	assertIs(t, im, 0, "e", 2.71828)
+	assertIs(t, im, 1, "phi", 1.61803)
+	assertIs(t, im, 2, "", 0)
+	assertIs(t, im, 3, "", 2023)
 	if im.Len() != 4 {
-		t.Errorf("Expected len 4, got %d", im.Len())
+		t.Errorf("Len, expected 4, got %d\n%v", im.Len(), *im)
 	}
-	if im.GetIdx(0) != 1 {
-		t.Errorf("Index 0 should be 1, got %d", im.GetIdx(0))
+	if im.LenKeyed() != 2 {
+		t.Errorf("LenKeyed, expected 2, got %d\n%v", im.LenKeyed(), *im)
 	}
-	if im.GetIdx(1) != 2 {
-		t.Errorf("Index 1 should be 2, got %d", im.GetIdx(1))
-	}
-	if im.GetIdx(2) != 4 {
-		t.Errorf("Index 2 should be 4, got %d", im.GetIdx(2))
-	}
-	if im.GetKey(42) != 4 {
-		t.Errorf("Key 42 should be 4, got %d", im.GetKey(42))
-	}
-
-	im.RemoveKey(42)
 	fmt.Println(im)
-	if im.Len() != 3 {
-		t.Errorf("Expected len 3, got %d", im.Len())
-	}
-	if im.GetIdx(0) != 1 {
-		t.Errorf("Index 0 should be 1, got %d", im.GetIdx(0))
-	}
-	if im.GetIdx(1) != 2 {
-		t.Errorf("Index 1 should be 2, got %d", im.GetIdx(1))
-	}
-	if im.GetIdx(2) != 5 {
-		t.Errorf("Index 2 should be 5, got %d", im.GetIdx(2))
-	}
-	if im.GetKey(42) != 0 {
-		t.Errorf("Key 42 should be 0, got %d", im.GetKey(42))
-	}
 
-	im.RemoveKey(42)
-	if im.Len() != 3 {
-		t.Errorf("Expected len 3, got %d", im.Len())
-	}
+	im.Set("e", 2.71828182845904523536028747135266249775724709369995)
+	im.Set("phi", 1.61803398874989484820458683436563811772030917980576)
+	im.Set("plank", 6.62607015e-34)
+	im.SetIdx(2, 1)
+	im.SetIdx(3, 2024)
 
-	im.RemoveIdx(0)
+	assertIs(t, im, 0, "e", 2.71828182845904523536028747135266249775724709369995)
+	assertIs(t, im, 1, "phi", 1.61803398874989484820458683436563811772030917980576)
+	assertIs(t, im, 2, "", 1)
+	assertIs(t, im, 3, "", 2024)
+	assertIs(t, im, 4, "plank", 6.62607015e-34)
+	if im.Len() != 5 {
+		t.Errorf("Len, expected 5, got %d\n%v", im.Len(), *im)
+	}
+	if im.LenKeyed() != 3 {
+		t.Errorf("LenKeyed, expected 3, got %d\n%v", im.LenKeyed(), *im)
+	}
 	fmt.Println(im)
-	if im.Len() != 2 {
-		t.Errorf("Expected len 2, got %d", im.Len())
-	}
-	if im.GetIdx(0) != 2 {
-		t.Errorf("Index 0 should be 2, got %d", im.GetIdx(0))
-	}
-	if im.GetIdx(1) != 5 {
-		t.Errorf("Index 1 should be 5, got %d", im.GetIdx(1))
-	}
-	if im.GetKey(42) != 0 {
-		t.Errorf("Key 42 should be 0, got %d", im.GetKey(42))
-	}
 
-	im.RemoveIdx(1)
+	im.Set("", 999)
+	im.SetIdx(0, 0)
+	im.SetIdxKey(0, "zero")
+
+	assertIs(t, im, 0, "zero", 0)
+	assertIs(t, im, 1, "phi", 1.61803398874989484820458683436563811772030917980576)
+	assertIs(t, im, 2, "", 1)
+	assertIs(t, im, 3, "", 2024)
+	assertIs(t, im, 4, "plank", 6.62607015e-34)
+	assertIs(t, im, 5, "", 999)
+	if im.Len() != 6 {
+		t.Errorf("Len, expected 6, got %d\n%v", im.Len(), *im)
+	}
+	if im.LenKeyed() != 3 {
+		t.Errorf("LenKeyed, expected 3, got %d\n%v", im.LenKeyed(), *im)
+	}
 	fmt.Println(im)
-	if im.Len() != 1 {
-		t.Errorf("Expected len 1, got %d", im.Len())
-	}
-	if im.GetIdx(0) != 2 {
-		t.Errorf("Index 0 should be 2, got %d", im.GetIdx(0))
-	}
 
-	im.RemoveIdx(0)
-	fmt.Println(im)
-	if im.Len() != 0 {
-		t.Errorf("Expected len 0, got %d", im.Len())
-	}
+	s := im.Slice()
+	sort.Slice(s, func(i, j int) bool { return s[i].Val < s[j].Val })
+	im = From(s)
 
-	im2 := New[string, float64]()
-	im2.InsertKey("pi", 3.14159)
-	im2.InsertKey("e", 2.71828)
-	im2.Append(42)
+	assertIs(t, im, 0, "zero", 0)
+	assertIs(t, im, 1, "plank", 6.62607015e-34)
+	assertIs(t, im, 2, "", 1)
+	assertIs(t, im, 3, "phi", 1.61803398874989484820458683436563811772030917980576)
+	assertIs(t, im, 4, "", 999)
+	assertIs(t, im, 5, "", 2024)
 
-	fmt.Println(im2)
+	s = im.Slice()
+	sort.SliceStable(s, func(i, j int) bool { return s[i].Key < s[j].Key })
+	im = From(s)
 
-	if im2.Len() != 3 {
-		t.Errorf("Expected len 3, got %d", im2.Len())
-	}
-	if im2.GetIdx(0) != 3.14159 {
-		t.Errorf("Index 0 should be 3.14159, got %f", im2.GetIdx(0))
-	}
-	if im2.GetIdx(1) != 2.71828 {
-		t.Errorf("Index 1 should be 2.71828, got %f", im2.GetIdx(1))
-	}
-	if im2.GetIdx(2) != 42 {
-		t.Errorf("Index 2 should be 42, got %f", im2.GetIdx(2))
-	}
-	if im2.GetKey("pi") != 3.14159 {
-		t.Errorf("Key pi should be 3.14159, got %f", im2.GetKey("pi"))
-	}
-	if im2.GetKey("e") != 2.71828 {
-		t.Errorf("Key e should be 2.71828, got %f", im2.GetKey("e"))
-	}
-	if im2.GetKey("42") != 0 {
-		t.Errorf("Key 42 should be 0, got %f", im2.GetKey("42"))
-	}
-	if im2.GetIdxKey(0) != "pi" {
-		t.Errorf("Index 0 should be pi, got %s", im2.GetIdxKey(0))
-	}
-	if im2.GetIdxKey(1) != "e" {
-		t.Errorf("Index 1 should be e, got %s", im2.GetIdxKey(1))
-	}
-	if im2.GetIdxKey(2) != "" {
-		t.Errorf("Index 2 should be \"\", got %s", im2.GetIdxKey(2))
-	}
+	assertIs(t, im, 0, "", 1)
+	assertIs(t, im, 1, "", 999)
+	assertIs(t, im, 2, "", 2024)
+	assertIs(t, im, 3, "phi", 1.61803398874989484820458683436563811772030917980576)
+	assertIs(t, im, 4, "plank", 6.62607015e-34)
+	assertIs(t, im, 5, "zero", 0)
 }
