@@ -49,7 +49,7 @@ index=5, key='sqrt(2)', value=1.414210
 ```
 We can access and modify elements
 ```go
-	val := specialNumbers.At(2)        // 2.718280
+	val := specialNumbers.At(2)        // 2.71
 	key := specialNumbers.GetIdxKey(2) // "e"
 
 	val = specialNumbers.Get("pi")        // 3.14
@@ -61,23 +61,24 @@ We can access and modify elements
 	lengthKeyed := specialNumbers.LenKeyed() // 4
 
 	// note: Removal preserve order
-	specialNumbers.RemoveAt(3)
-	val = specialNumbers.At(3)        // 69
-	key = specialNumbers.GetIdxKey(3) // ""
-
-	specialNumbers.Remove("pi")
+	specialNumbers.RemoveAt(3)               // Remove index 3
+	specialNumbers.Remove("pi")              // Remove key "pi"
+	specialNumbers.Set("e", 2.71828)         // Update key "e"
+	specialNumbers.InsertIndex(3, "G", 9.81) // Insert keyed value at index 3
+	specialNumbers.InsertIndex(5, "", 666)   // Insert unkeyed value at index 5
 
 	for idx, item := range specialNumbers.Slice() {
 		fmt.Printf("index=%d, key='%s', value=%f\n", idx, item.Key, item.Val)
 	}
-}
 ```
 Output
 ```
 index=0, key='', value=42.000000
 index=1, key='e', value=2.718280
 index=2, key='', value=69.000000
-index=3, key='sqrt(2)', value=1.414210
+index=3, key='G', value=9.810000
+index=4, key='sqrt(2)', value=1.414210
+index=5, key='', value=666.000000
 ```
 And we can do any arbitrary operation on the underlying slice like
 ```go
@@ -93,6 +94,8 @@ Output
 ```
 index=0, key='sqrt(2)', value=1.414210
 index=1, key='e', value=2.718280
-index=2, key='', value=42.000000
-index=3, key='', value=69.000000
+index=2, key='G', value=9.810000
+index=3, key='', value=42.000000
+index=4, key='', value=69.000000
+index=5, key='', value=666.000000
 ```
