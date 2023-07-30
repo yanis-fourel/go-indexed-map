@@ -27,48 +27,18 @@ func main() {
 	specialNumbers := idxmap.New[string, float64]()
 
 	specialNumbers.Append(42)
-	specialNumbers.InsertKey("pi", 3.14)
-	specialNumbers.InsertKey("e", 2.71828)
-	specialNumbers.InsertKey("phi", 1.61803)
+	specialNumbers.Set("pi", 3.14)
+	specialNumbers.Set("e", 2.71828)
+	specialNumbers.Set("phi", 1.61803)
 	specialNumbers.Append(69)
-	specialNumbers.InsertKey("sqrt(2)", 1.41421)
+	specialNumbers.Set("sqrt(2)", 1.41421)
 
-	for idx, item := range specialNumbers.Iter() {
+	for idx, item := range specialNumbers.Slice() {
 		fmt.Printf("index=%d, key='%s', value=%f\n", idx, item.Key, item.Val)
 	}
 
-	val := specialNumbers.GetIdx(2)
-	fmt.Printf("value at index 2: %f\n", val)
-
-	key := specialNumbers.GetIdxKey(2)
-	fmt.Printf("key of value at index 2: %s\n", key)
-
-	val = specialNumbers.GetKey("pi")
-	fmt.Printf("value of key 'pi': %f\n", val)
-
-	idx := specialNumbers.GetKeyIdx("pi")
-	fmt.Printf("index of key 'pi': %d\n", idx)
-
-	specialNumbers.RemoveIdx(2)
-	fmt.Println("removed index 2")
-	val = specialNumbers.GetIdx(2)
-	fmt.Printf("value at index 2: %f\n", val)
-
-	specialNumbers.RemoveKey("sqrt(2)")
-	fmt.Println("removed key 'sqrt(2)'")
-
-	for idx, item := range specialNumbers.Iter() {
-		fmt.Printf("index=%d, key='%s', value=%f\n", idx, item.Key, item.Val)
-	}
-
-	if specialNumbers.HasKey("pi") {
-		fmt.Println("specialNumbers has key 'pi'")
-	} else {
-		fmt.Println("specialNumbers does not have key 'pi'")
-	}
-}
 ```
-Running above example produces the following output.
+At this point, the output is
 ```
 index=0, key='', value=42.000000
 index=1, key='pi', value=3.140000
@@ -76,16 +46,53 @@ index=2, key='e', value=2.718280
 index=3, key='phi', value=1.618030
 index=4, key='', value=69.000000
 index=5, key='sqrt(2)', value=1.414210
-value at index 2: 2.718280
-key of value at index 2: e
-value of key 'pi': 3.140000
-index of key 'pi': 1
-removed index 2
-value at index 2: 1.618030
-removed key 'sqrt(2)'
+```
+We can access and modify elements
+```go
+	val := specialNumbers.At(2)        // 2.718280
+	key := specialNumbers.GetIdxKey(2) // "e"
+
+	val = specialNumbers.Get("pi")        // 3.14
+	idx := specialNumbers.GetKeyIdx("pi") // 1
+
+	has := specialNumbers.HasKey("pi") // true
+
+	length := specialNumbers.Len()           // 6
+	lengthKeyed := specialNumbers.LenKeyed() // 4
+
+	// note: Removal preserve order
+	specialNumbers.RemoveAt(3)
+	val = specialNumbers.At(3)        // 69
+	key = specialNumbers.GetIdxKey(3) // ""
+
+	specialNumbers.Remove("pi")
+
+	for idx, item := range specialNumbers.Slice() {
+		fmt.Printf("index=%d, key='%s', value=%f\n", idx, item.Key, item.Val)
+	}
+}
+```
+Output
+```
 index=0, key='', value=42.000000
-index=1, key='pi', value=3.140000
-index=2, key='phi', value=1.618030
+index=1, key='e', value=2.718280
+index=2, key='', value=69.000000
+index=3, key='sqrt(2)', value=1.414210
+```
+And we can do any arbitrary operation on the underlying slice like
+```go
+	s := specialNumbers.Slice()
+	sort.Slice(s, func(i, j int) bool { return s[i].Val < s[j].Val })
+	specialNumbers = idxmap.From(s)
+
+	for idx, item := range specialNumbers.Slice() {
+		fmt.Printf("index=%d, key='%s', value=%f\n", idx, item.Key, item.Val)
+	}
+```
+Output
+```
+index=0, key='sqrt(2)', value=1.414210
+index=1, key='e', value=2.718280
+index=2, key='', value=42.000000
 index=3, key='', value=69.000000
-specialNumbers has key 'pi'
 ```
